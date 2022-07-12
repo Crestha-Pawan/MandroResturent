@@ -1,0 +1,133 @@
+﻿@model FiboLodge.Src.ViewModel.RoomSetupViewModel
+@{ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index"; }
+<div class="col-sm-12">
+    <div class="card">
+        <div class="card-body">
+            <button class="btn btn-success" data-toggle="modal" RoomId="0" data-target="#myModal"><i class="ti-plus"></i> Create New</button>
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Size
+                                </th>
+                                <th>
+                                    Duration
+                                </th>
+                                <th>
+                                    Charges
+                                </th>
+                                <th style="text-align:center">
+                                    Action Name
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.RoomSetupList)
+                            {
+
+                <tr>
+                    <td>
+                        @item.RoomName
+                    </td>
+                    <td>
+                        @item.Size
+                    </td>
+                    <td>
+                        @item.Duration
+                    </td>
+                    <td>
+                        @item.Charges
+                    </td>
+                    <td style="text-align:center">
+                        <div class="btn-group-sm">
+                            <a type="button" class="btn btn-secondary" ReferenceType="Crud" data-toggle="modal" RoomId="@item.Id" data-target="#myModal">
+                            <i class="ti-pencil-alt" data-toggle="tooltip" title="Edit"></i>
+                            </a>
+                            <a type="button" class="btn btn-danger" href="#!" data-toggle="modal" RoomId="@item.Id" data-target="#myModal"><i class="ti-trash" data-toggle="tooltip" title="Delete"></i></a>
+                        </div>
+
+                    </td>
+                </tr>}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <script type="text/javascript">
+        $("#myModal").on('show.bs.modal', function (ke) {
+            const roomId = $(ke.relatedTarget).attr('RoomId');
+            const type = $(ke.relatedTarget).attr('ReferenceType');
+            if (roomId > 0) {
+                if (type == null) {
+                    var url = '@Url.Action("Delete","RoomSetup")' + "?id=" + roomId;
+                    $("#DeleteBody").load(url, function () {
+                        $("#myModal").modal('show');
+                    });
+                }
+                else {
+                    var url = '@Url.Action("Update", "RoomSetup")' + "?id=" + roomId;
+                    $("#DeleteBody").load(url, function () {
+                        $("#myModal").modal('show');
+                    });
+                }
+            }
+            else {
+                var url = '@Url.Action("Create", "RoomSetup")';
+                $("#DeleteBody").load(url, function () {
+                    $("#myModal").modal('show');
+                });
+            }
+        })
+
+    </script>
+
+    @if (ViewBag.Message != null)
+    {
+<script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-inverse',
+                placement: { from: 'bottom', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated fadeInRight', exit: 'animated fadeOutRight' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message', 'success');
+    /**/
+    });
+</script>}
+}

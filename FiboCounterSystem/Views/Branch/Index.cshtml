@@ -1,0 +1,144 @@
+﻿
+@model FiboOffice.Src.ViewModel.BranchViewModel
+@{ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index";
+    int SN = 1;
+}
+@inject FiboOffice.InfraStructure.Repository.IOfficeRepository _officeRepo;
+@inject FiboAddress.InfraStructure.Repository.IProvienceRepository _provienceRepo;
+@inject FiboAddress.InfraStructure.Repository.IDistrictRepository _districtRepo;
+@inject FiboAddress.InfraStructure.Repository.ILocalLevelRepository _localLevelRepo;
+
+<div class="col-sm-12">
+    <div class="card">
+        <div class="card-body">
+            <div style="text-align:left">
+                <a class="btn waves-effect waves-light btn-rounded btn-success" type="button" asp-action="Create" asp-controller="Branch"><i class="ti-plus"></i>Create New</a>
+            </div> <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #0e185ec7;">
+                            <tr>
+                                <th>SN</th>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Address
+                                </th>
+                                <th>
+                                    Phone Number
+                                </th>
+                                <th>
+                                    Email Address
+                                </th>
+                                <th style="text-align:center">
+                                    Action Name
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Branches)
+                            {
+                                var provience = await _provienceRepo.GetByIdAsync((long)item.ProvienceId);
+                                var district = await _districtRepo.GetByIdAsync((long)item.DistrictId);
+                                var localLevel = await _localLevelRepo.GetByIdAsync((long)item.LocalLevelId);
+                                <tr>
+                                    <td>
+                                        @SN
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("BranchReport","Branch",new { @branchId=item.Id})" target="_parent">@item.Name</a>
+                                    </td>
+                                    <td>
+                                        @provience.Name,@district.Name,@localLevel.Name-@item.WardNo
+                                    </td>
+
+                                    <td>
+                                        @item.PhoneNo
+                                    </td>
+                                    <td>
+                                        @item.Email
+                                    </td>
+                                    <td style="text-align:center">
+                                        <div class="btn-group-sm">
+                                            <a type="button" class="btn-sm  btn-secondary" asp-action="Update" asp-controller="Branch" asp-route-id="@item.Id">
+                                              <i class="ti-pencil-alt" data-toggle="tooltip" title="Edit"></i>
+                                            </a>
+
+                                            <a type="button" class="btn btn-danger" href="#!" data-toggle="modal" BranchId="@item.Id" data-target="#myModal"><i class="ti-trash"></i></a>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                                SN++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <script type="text/javascript">
+            $("#myModal").on('show.bs.modal', function (ke
+            ) {
+                const branchId = $(ke.relatedTarget).attr('BranchId');
+
+                var url = '@Url.Action("Delete","Branch")' + "?id=" + branchId;
+                if (branchId > 0) {
+                $("#DeleteBody").load(url, function () {
+
+                    $("#myModal").modal('show');
+                });
+            }
+            else {
+                $("#myModal").modal('hide');
+            }
+        })
+    </script>
+}
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-danger',
+                placement: { from: 'bottom', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated fadeInRight', exit: 'animated fadeOutRight' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message');
+    /**/
+    });
+    </script>
+}
+

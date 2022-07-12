@@ -1,0 +1,129 @@
+﻿@model FiboOffice.Src.ViewModel.EmployeeViewModel
+@{ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index";
+    int sn = 0;}
+@inject FiboOffice.InfraStructure.Repository.IPostRepository _postRepository;
+
+<div class="col-sm-12">
+    <div class="card">
+        <div class="col-lg-12">
+            <div class="card-body">
+                <form asp-action="SalaryIndex" asp-controller="Employee" method="post">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    Name <br />
+                                    <input type="text" asp-for="Name" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div style="text-align:right">
+                                <div class="btn btn-group" style=" margin-top: -57px;">
+                                    <button type="submit" class="btn btn-success">Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>
+                                    SN
+                                </th>
+                                <th>Name</th>
+                                <th style="width:120px">
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Employees)
+                            {
+                                sn++;
+
+                                var post = await _postRepository.GetByIdAsync((long)item.PostId);
+                                <tr>
+                                    <td style="width:30px">
+                                        @sn
+                                    </td>
+                                    <td>
+                                        @item.Name
+                                    </td>
+
+                                    <td style="text-align:center">
+
+                                        <div>
+                                            <a class="btn-sm btn-icon btn-success" asp-action="AddSalary" asp-controller="Employee" asp-route-id="@item.Id"><i class="feather icon-plus-circle"> Add salary</i> </a>
+                                            <a class="btn-sm btn-icon btn-block" asp-action="AdvanceSalary" asp-controller="Employee" asp-route-id="@item.Id"><i class="feather icon-plus-circle">Advance Salary</i> </a>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+{
+    <script type="text/javascript">
+        $("#myModal").on('show.bs.modal', function (ke) {
+            const SalaryId = $(ke.relatedTarget).attr('SalaryId');
+            const type = $(ke.relatedTarget).attr('ReferenceType');
+            if (SalaryId > 0) {
+                if (type == null) {
+                    var url = '@Url.Action("Delete", "SalarySheet")' + "?id=" + SalaryId;
+                    $("#DeleteBody").load(url, function () {
+
+                        $("#myModal").modal('show');
+                    });
+                }
+                else {
+                    var url = '@Url.Action("Update", "SalarySheet")' + "?id=" + SalaryId;
+                    $("#DeleteBody").load(url, function () {
+
+                        $("#myModal").modal('show');
+                    });
+                }
+            }
+            else {
+                 var url = '@Url.Action("Create", "SalarySheet")';
+                 $("#DeleteBody").load(url, function () {
+
+                     $("#myModal").modal('show');
+                 });
+             }
+        })
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}
+
+
+`

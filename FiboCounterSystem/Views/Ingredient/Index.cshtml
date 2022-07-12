@@ -1,0 +1,98 @@
+﻿@model FiboInventory.Src.ViewModel.IngredientViewModel
+@{ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index"; }
+@inject FiboOffice.InfraStructure.Repository.IMeasuringUnitRepository _MURepos;
+
+<div class="col-sm-12">
+    <div class="card">
+        <div class="card-body">
+            <a class="btn waves-effect waves-light btn-rounded btn-primary" type="button" asp-action="Create" asp-controller="Ingredient"><i class="ti-plus">Ingredient New</i></a>
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Quantity
+                                </th>
+                                <th>
+                                    Measuring Unit
+                                </th>
+                                <th>
+                                    Action Name
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Ingredients)
+                            {
+                                var MU = await _MURepos.GetByIdAsync(item.MeasuringUnitId.Value);
+                                <tr>
+                                    <td>
+                                        @*@item.Name*@
+                                    </td>
+                                    <td>
+                                        @item.Quantity
+                                    </td>
+                                    <td>
+                                        @if (MU != null)
+                                        {
+                                            @MU.Name
+                                        }
+
+                                    </td>
+                                    <td>
+                                        <a type="button" asp-action="Update" asp-controller="Ingredient" asp-route-id="@item.Id">
+                                            <i class="ti-pencil-alt" data-toggle="tooltip" title="Edit"></i>
+                                        </a>
+                                        <a href="#!" data-toggle="modal" ingredientId="@item.Id" data-target="#myModal"><i class="ti-trash"></i></a>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    <script type="text/javascript">
+            $("#myModal").on('show.bs.modal', function (ke
+            ) {
+                const ingredientId = $(ke.relatedTarget).attr('IngredientId');
+
+                var url = '@Url.Action("Delete","Ingredient")' + "?id=" + ingredientId;
+                if (ingredientId > 0) {
+                $("#DeleteBody").load(url, function () {
+
+                    $("#myModal").modal('show');
+                });
+            }
+            else {
+                $("#myModal").modal('hide');
+            }
+        })
+    </script>
+}

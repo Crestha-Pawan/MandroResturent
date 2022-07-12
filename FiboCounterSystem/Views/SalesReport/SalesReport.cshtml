@@ -1,0 +1,130 @@
+﻿@model FiboBilling.Src.ViewModel.SalesReportViewModel
+@{
+
+    int SN = 1;
+    decimal? total = 0;
+    decimal? totalQuantity = 0;
+}
+@inject FiboInventory.InfraStructure.Repository.IProductRepository _inventrepos;
+@using FiboInfraStructure;
+<script type="text/javascript">
+    function CallPrint(strid) {
+        var mywindow = document.getElementById('Format');
+        var popupWin = window.open('', "Kaamana Format", 'width=350,height=150,location=no,left=200px');
+
+        popupWin.document.open();
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css"  href="../Content/bootstrap.min.css" /></head><body onload="window.print()">')
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css" href="../Content/print.css" /></head><body onload="window.print()">')
+        popupWin.document.write(mywindow.innerHTML);
+        popupWin.document.write('</html>');
+
+        popupWin.document.close();
+
+    }
+
+</script>
+
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            @using (Html.BeginForm("SalesReport", "SalesReport", FormMethod.Get, new { @class = "form-view-data" }))
+            {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+
+                            <div class="col-lg-2">
+                                <label for="From Date" style="margin-bottom:-5px">From Date</label>
+                                @Html.TextBoxFor(x => x.FromMiti, "{0:YYYY/MM/DD }", new { @class = "form-control nepali-datepicker", @placeholder = "YYYY/MM/DD", @autocomplete = "off" })
+                            </div>
+                            <div class="col-lg-2">
+                                <label for="To Date" style="margin-bottom:-5px">To Date</label>
+                                @Html.TextBoxFor(x => x.ToMiti, "{0:YYYY/MM/DD  }", new { @class = "form-control nepali-datepicker", @placeholder = "YYYY/MM/DD", @autocomplete = "off" })
+                            </div>
+                           
+                            <div class="col-lg-3">
+                                <label for="Payment" style="margin-bottom:-5px">Name</label>
+                                <select asp-for="ProductId" asp-items="Model.ProductList"style="margin-bottom:-8px" class="form-control" id="PaymentMethod" autocomplete="off">
+                                    <option value="">--select--</option>
+                                    
+                                </select>
+                            </div>
+                            <div class="btn btn-sm  btn-group" style="margin-top: 17px;">
+                                <button type="submit" class="btn btn-success"><i class="ti-filter">Search</i></button>
+                                <button type="button" class="btn btn-success"
+                                        style="background-color:darkblue;color:white;font-weight:bold"
+                                        onclick="CallPrint('strid')" data-ma-action="print">
+                                    <i class="ti-printer"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <div class="card">
+        <div class="card-body" id="Format">
+            <h4>Sales Report</h4>
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered table-striped" border="1" width="100%">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>SN</th>
+                                <th>Date</th>
+                                <th>Name</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.salesvm)
+                            {
+
+                                var product = await _inventrepos.GetByIdAsync((long)item.ProductId);
+                                total += item.Total.ToDecimal();
+                                totalQuantity += item.Quantity.ToDecimal();
+                                <tr>
+                                    <td>
+                                        @SN
+                                    </td>
+                                    <td>
+                                        @item.BillingDate
+                                    </td>
+                                    <td>
+                                        @product.Name
+                                    </td>
+                                    <td>
+                                        @item.Quantity
+                                    </td>
+                                    <td>
+                                        @item.Total
+                                    </td>
+
+                                </tr>
+                                SN++;
+                            }
+                            <tr>
+                                <td colspan="3" style="text-align:right">
+                                    Total
+                                </td>
+                                <td>
+                                    @totalQuantity
+                                </td>
+                                <td>
+                                    @total
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

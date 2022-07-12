@@ -1,0 +1,55 @@
+﻿@model FiboInventory.Src.ViewModel.IngredientViewModel
+
+@{ Layout = null;
+}
+@inject FiboOffice.InfraStructure.Repository.IMeasuringUnitRepository _MURepos;
+@inject FiboInventory.InfraStructure.Repository.ItemRepository _itemRepo;
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title">
+            @if (Model.Product != null)
+            {
+                @Model.Product.Name
+            }
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="ti-close"></i></span></button>
+    </div>
+    <div class="modal-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Measuring Unit
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ingredient in Model.Ingredients)
+                {
+                    var MU = await _MURepos.GetByIdAsync(ingredient.MeasuringUnitId.Value);
+                    var item = await _itemRepo.GetByIdAsync(ingredient.ItemId.Value);
+                    <tr>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td>
+                            @ingredient.Quantity
+                        </td>
+                        <td>
+                            @if (MU != null)
+                            {
+                        @MU.Name
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

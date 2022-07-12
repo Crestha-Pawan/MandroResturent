@@ -1,0 +1,144 @@
+﻿@model FiboInventory.Src.ViewModel.InventoryViewModel
+@using FiboInfraStructure;
+@{ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index"; }
+@{ long SN = 0; }
+@inject FiboInventory.InfraStructure.Repository.IItemRepository _itemRepo;
+@inject FiboOffice.InfraStructure.Repository.IMeasuringUnitRepository _muRepo;
+
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <div style="text-align:left">
+                <a class="btn waves-effect waves-light btn-rounded btn-success" type="button" asp-action="Create" asp-controller="Inventory"><i class="ti-plus"></i>Create New</a>
+            </div>
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>S.N</th>
+                                <th>
+                                    Date
+                                </th>
+                                <th>
+                                    Item Name
+                                </th>
+                                <th>Quantity</th>
+
+                                <th>Rate</th>
+                                <th>Total</th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Inventories)
+                            {
+                                SN++;
+                                var invItem = await _itemRepo.GetByIdAsync((long)item.ItemId);
+                                //var unit = await _muRepo.GetByIdAsync((long)item.MeasuringUnitId);
+                <tr>
+                    <td>
+                        @SN
+                    </td>
+                    <td>
+                        @item.Date.ToNepDate()
+                    </td>
+                    <td>
+                        @invItem.Name
+                    </td>
+                    <td>
+                        @item.Quantity
+                    </td>
+                    <td>
+                        @item.Rate
+                    </td>
+                    <td>
+                        @item.Total
+                    </td>
+                    <td style="text-align:center">
+                        <div class="btn-group-sm">
+                            @*<button class="btn btn-success" data-toggle="modal" ReferenceType="Crud" InvID="@item.Id" data-target="#myModal"><i class=" icon feather icon-plus-circle"></i> Add Stock</button>*@
+                            <a type="button" class="btn btn-secondary" asp-action="Update" asp-controller="Inventory" asp-route-id="@item.Id">
+                              <i class="ti-pencil-alt" data-toggle="tooltip" title="Edit"></i>
+                            </a>
+                            <a type="button" class="btn btn-danger" href="#!" data-toggle="modal" InvID="@item.Id" data-target="#myModal"><i class="ti-trash" data-toggle="tooltip" title="Delete"></i></a>
+                        </div>
+                    </td>
+                </tr>
+}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+    <script type="text/javascript">
+            $("#myModal").on('show.bs.modal', function (ke) {
+                const invID = $(ke.relatedTarget).attr('InvID');
+                const type = $(ke.relatedTarget).attr('ReferenceType');
+                var url = '@Url.Action("Delete","Inventory")' + "?id=" + invID;
+                if (invID > 0) {
+                    if (type == null) {
+                        $("#DeleteBody").load(url, function () {
+                            $("#myModal").modal('show');
+                        });
+                    }
+                    else {
+                        var url = '@Url.Action("UpdateNew","Inventory")' + "?id=" + invID;
+                    $("#DeleteBody").load(url, function () {
+                        $("#myModal").modal('show');
+                    });
+                }
+            }
+            else {
+                $("#myModal").modal('hide');
+            }
+        })
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    @if (ViewBag.Message != null)
+    {
+<script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-danger',
+                placement: { from: 'top', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated rotateIn', exit: 'animated rotateOut' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message');
+    /**/
+    });
+</script>
+}
+}

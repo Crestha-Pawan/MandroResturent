@@ -1,0 +1,180 @@
+﻿@model Payroll.Src.Dto.PettyCashFundDto
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Create";
+}
+
+<form asp-action="Create" asp-controller="PettyCashFund" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title"><b>PettyCashFund Create</b></h4>
+                </div>
+                <hr />
+                <div class="card-body">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="Name">Date<span style="color:red">*</span></label><br />
+                                <input type="text" asp-for="Date" class="form-control nepali-datepicker" id="Name" autocomplete="off" required />
+                                <div class="invalid-feedback">
+                                    Please Enter A Name.
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="Email">Amount<span style="color:red">*</span></label><br />
+                                <input type="text" asp-for="Amount" class="form-control" id="Email" required autocomplete="off" />
+                                <div class="invalid-feedback">
+                                    Please Enter A Email Address.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="Quantity">Quantity<span style="color:red">*</span></label><br />
+                                <input type="text" asp-for="Quantity" class="form-control" id="phone_format" required autocomplete="off" />
+                                <div class="invalid-feedback">
+                                    Please Enter A ContactNumber.
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-footer" style="text-align:right">
+                    <button type="submit" class="btn  btn-success" style="background-color: #158322;" id="btnSubmit"><i class="feather mr-2 icon-check-square"></i>Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'danger',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-danger',
+                placement: { from: 'bottom', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated fadeInRight', exit: 'animated fadeOutRight' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message');
+    /**/
+    });
+    </script>
+}
+
+
+
+
+
+
+
+
+
+@*@model Payroll.Src.Dto.PettyCashFundDto
+    @{
+        Layout = null;
+        ViewBag.Title = "Create";
+    }
+
+    <form asp-action="Create" asp-controller="PettyCashFund" method="post" id="messageModal main" class="frmValidation" novalidate>
+        @Html.AntiForgeryToken()
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New PettyCashFund</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label>Date<span style="color:red">*</span></label><br />
+                            <input type="text" asp-for="Date" class="form-control nepali-datepicker" required />
+                            <div class="invalid-feedback">
+                                Please Enter A Date.
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="Amount">Amount<span style="color:red">*</span></label><br />
+                            <input type="text" asp-for="Amount" class="form-control" required autocomplete="off" />
+                            <div class="invalid-feedback">
+                                Please Enter A Amount.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="Quantity">Quantity<span style="color:red">*</span></label><br />
+                                <input type="text" asp-for="Quantity" class="form-control"required autocomplete="off" />
+                                <div class="invalid-feedback">
+                                    Please Enter A Salary.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" id="btnSubmit" class="btn  btn-success"><i class="feather icon-check-square"></i> Submit</button>
+                <button type="button" class="btn  btn-secondary" data-dismiss="modal">&times; Cancel</button>
+            </div>
+        </div>
+    </form>
+
+    <script src="~/nepali.datepicker.v3.6 (1)/js/nepali.datepicker.v3.6.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+    <script type="text/javascript">
+
+        $(function () {
+            Array.prototype.filter.call($('.frmValidation'), function (form) {
+                $('#btnSubmit').click(function () {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        form.classList.add('was-validated');
+                        return false;
+                    }
+                    else {
+                        return true;
+                    }
+
+
+                });
+            });
+        });
+
+
+    </script>
+        <script>
+            $(document).ready(function () {
+                var mainInput = document.getElementsByClassName("nepali-datepicker");
+                mainInput.nepaliDatePicker({
+                    language: "english",
+                    ndpYear: true,
+                    ndpMonth: true,
+                    ndpYearCount: 10
+                });
+            });
+        </script>*@
+

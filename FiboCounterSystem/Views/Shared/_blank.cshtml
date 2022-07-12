@@ -1,0 +1,40 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="">
+    <meta name="author" content="Codedthemes" />
+    <title>@ViewData["Title"] - FiboCounterSystem</title>
+    <link rel="icon" href=" url('@Url.Content("~/default/assets/images/123.JPG")')" type="image/x-icon">
+    <link href="~/default/assets/css/style.css" rel="stylesheet" />
+    <link href="~/css/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/nepali.datepicker.v3.6 (1)/css/nepali.datepicker.v3.6.min.css" rel="stylesheet" />
+
+    <link href="~/default/assets/css/plugins/dataTables.bootstrap4.min.css" rel="stylesheet" />
+</head>
+
+<body>
+    <script src="~/nepali.datepicker.v3.6 (1)/js/nepali.datepicker.v3.6.min.js"></script>
+</body>
+</html>
+
+@RenderSection("Scripts", required: false)
+
+<script>
+    $(document).ready(function () {
+        var mainInput = document.getElementsByClassName("nepali-datepicker");
+
+        /* Initialize Datepicker with options */
+        mainInput.nepaliDatePicker({
+            language: "english",
+            ndpYear: true,
+            ndpMonth: true,
+            ndpYearCount: 10
+        });
+    });
+    $('#user-list-table').DataTable();
+</script>

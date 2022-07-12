@@ -1,0 +1,94 @@
+﻿@model FiboOffice.Src.Dto.MeasuringUnitDto
+@{
+    Layout = null;
+    ViewBag.Title = "Create";
+}
+
+<form asp-action="Create" asp-controller="MeasuringUnit" method="post"  id="messageModal" class="frmValidation" novalidate>
+    @Html.AntiForgeryToken()
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">New Unit</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <label for="name">Name<span style="color:red">*</span></label><br />
+                        <input type="text" asp-for="Name" class="form-control" id="name"autocomplete="off" required />
+                        <div class="invalid-feedback">
+                            Please Enter A Name.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="btn-group-sm">
+                <button type="button" class="btn  btn-secondary" data-dismiss="modal"><i class="ti-close"></i> Cancel</button>
+                <button type="submit" id="btnSubmit" class="btn  btn-success"><i class="ti-check"></i> Submit</button>
+            </div>
+            </div>
+    </div>
+</form>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-inverse',
+                placement: { from: 'bottom', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated fadeInRight', exit: 'animated fadeOutRight' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message', 'success');
+    /**/
+    });
+    </script>
+}
+
+<script type="text/javascript">
+    $(document).on('invalid-form.validate', 'form', function () {
+        var button = $(this).find(':submit');
+        setTimeout(function () {
+            button.removeAttr('disabled');
+        }, 1);
+    });
+    $(document).on('submit', 'form', function () {
+        var button = $(this).find(':submit');
+        setTimeout(function () {
+            button.attr('disabled', 'disabled');
+        }, 0);
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+        Array.prototype.filter.call($('.frmValidation'), function (form) {
+            $('#btnSubmit').click(function () {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    form.classList.add('was-validated');
+                    return false;
+                }
+                else {
+                    return true;
+                }
+
+
+            });
+        });
+    });
+    
+    </script>

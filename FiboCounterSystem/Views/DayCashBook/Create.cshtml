@@ -1,0 +1,218 @@
+﻿@model FiboOffice.Src.Dto.DayCashBookDto
+@{
+
+    int SN = 0;
+    decimal? ledgerdr = 0;
+    decimal? ledgercr = 0;
+    decimal? clblc = 0;
+    decimal InvTotal = 0;
+    decimal exp = 0;
+    decimal netsaving = 0;
+    decimal SalesTotal = 0;
+    decimal salary = 0;
+    decimal advsalary = 0;
+    decimal partydr = 0;
+    decimal partycr = 0;
+    DateTime dt = DateTime.Now;
+    var officeList = await _officeRepo.GetAllOfficeAsync();
+    var office = officeList.FirstOrDefault();
+
+}
+@using FiboInfraStructure;
+@inject FiboOffice.InfraStructure.Repository.IOfficeRepository _officeRepo;
+<form asp-action="Create" asp-controller="DayCashBook" class="needs-validation" method="post">
+    <div class="card">
+        <div class="card-header" style="text-align:center">
+            Day Cash Book of @office.Name <br /><br /><br />
+            Date: @dt.ToDateTime().ToNepDate()
+            <hr />
+        </div>
+    </div>
+    <div class="card-body" id="Format">
+        <div class="table-responsive">
+            <div class="tableFixHead">
+                <table class="table table-bordered">
+                    <thead style="background-color: #FFFFFFCC;">
+                        <tr>
+                            <th>S.No.</th>
+                            <th>Particulars</th>
+                            <th>Debit(Rs) </th>
+                            <th>Credit(Rs) </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        @foreach (var item in Model.InventoryList)
+                        {
+                            InvTotal += item.Total.ToDecimal();
+
+                        }
+                        @foreach (var item in Model.Expenses)
+                        {
+                            exp += item.Amount.ToDecimal();
+                        }
+                        @foreach (var item in Model.BillingList)
+                        {
+                            SalesTotal += item.NetAmtPayable.ToDecimal();
+                        }
+                        @foreach (var item in Model.SalarySheets)
+                        {
+                            salary += item.NetSalary.ToDecimal();
+                            advsalary += item.AdvanceSalary.ToDecimal();
+                        }
+                        @foreach (var item in Model.LedgerDetailList)
+                        {
+
+                            ledgerdr += item.DebitAmount.ToDecimal();
+                            ledgercr += item.CreditAmount.ToDecimal();
+                        }
+
+                        <tr>
+
+                            <td colspan="3" style="color:red; text-align:right">
+                                Opening Balance
+                            </td>
+
+                            <td>
+                                @ViewBag.Balance
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                1
+                            </td>
+                            <td>
+                                Purchase
+                            </td>
+                            <td>
+                                @InvTotal
+                            </td>
+                            <td>
+                                -
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                2
+                            </td>
+                            <td>
+                                Sales
+                            </td>
+                            <td>
+                                -
+                            </td>
+                            <td>
+                                @SalesTotal
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                3
+                            </td>
+                            <td>
+                                Administrative Expenses
+                            </td>
+                            <td>
+                                @exp
+                            </td>
+                            <td>
+                                -
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                4
+                            </td>
+                            <td>
+                                Salary Paid
+                            </td>
+                            <td>
+                                @salary
+                            </td>
+                            <td>
+                                -
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                5
+                            </td>
+                            <td>
+                                Advance Salary
+                            </td>
+                            <td>
+                                @advsalary
+                            </td>
+                            <td>
+                                -
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                6
+                            </td>
+                            <td>
+                                Payment To Parties
+                            </td>
+                            <td>
+                                @ledgerdr
+                            </td>
+                            <td>
+                                -
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                7
+                            </td>
+                            <td>
+                                Received From Parties
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                @ledgercr
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                            </td>
+                            <td style="font-size:20px">
+                                <b>Today's Net Saving</b>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                @{
+                                    netsaving = SalesTotal.ToDecimal() - InvTotal.ToDecimal() - exp.ToDecimal()+ledgercr.ToDecimal()-ledgerdr.ToDecimal()-salary.ToDecimal()-advsalary.ToDecimal();
+                                }
+                                @netsaving
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="3" style="color:red; text-align:right">
+                                <b>Closing Balance</b>
+                            </td>
+                            <td>
+
+                                @{
+                                    clblc = @ViewBag.Balance + netsaving;
+                                }
+                                <input asp-for="OpeningBalance" value="@clblc" class="form-control" id="OpeningBalance" autocomplete="off" readonly style="width: 50%;" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="form-group">
+            <div class="col-md-12" style="text-align:right">
+                <button type="submit" class="btn  btn-success" id="btnSubmit"><i class="feather mr-2 icon-check-circle"></i>Submit</button>
+            </div>
+        </div>
+    </div>
+</form>

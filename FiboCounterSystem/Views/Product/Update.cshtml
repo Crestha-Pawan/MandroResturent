@@ -1,0 +1,80 @@
+﻿@model FiboInventory.Src.Dto.ProductDto
+
+@{ ViewBag.Title = "Update"; }
+
+
+<form asp-action="Update" asp-controller="Product" method="post" id="main" class="" >
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0 text-black-50">Update </h4>
+                </div>
+                <div class="card-body">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="Name">Name<span style="color:red">*</span></label><br />
+                                <input type="text" asp-for="Name" class="form-control" id="Name" required />
+                                <div class="invalid-feedback">
+                                    Please Enter A Name.
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="Name">Cost<span style="color:red">*</span></label><br />
+                                <input type="text" asp-for="Cost" class="form-control" id="Name" required />
+                                <div class="invalid-feedback">
+                                    Please Enter A Cost.
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="District">Category<span style="color:red">*</span></label><br />
+                                <select asp-for="ProductCategoryId" asp-items="Model.ProductCategoryList" class="select2 custom-select form-control" autocomplete="off" required=""></select>
+                                <div class="invalid-feedback">
+                                    Please Select Category.
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <label for="District">SubCategory<span style="color:red">*</span></label><br />
+                                <select asp-for="ProductSubCategoryId" asp-items="Model.ProductSubCategoryList" class="select2 custom-select form-control" disabled autocomplete="off"></select>
+                                @*<div class="invalid-feedback">
+                                    Please Select SubCategory.
+                                </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="col-md-12" style="text-align:right">
+                        <button type="submit" class="btn btn-success" id="btnSubmit"><i class="ti-check"></i>Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+@*@section scripts {
+    <script type="text/javascript">
+        $(document).on('invalid-form.validate', 'form', function () {
+            var button = $(this).find(':submit');
+            setTimeout(function () {
+                button.removeAttr('disabled');
+            }, 1);
+        });
+        $(document).on('submit', 'form', function () {
+            var button = $(this).find(':submit');
+            setTimeout(function () {
+                button.attr('disabled', 'disabled');
+            }, 0);
+        });
+    </script>
+}*@
+

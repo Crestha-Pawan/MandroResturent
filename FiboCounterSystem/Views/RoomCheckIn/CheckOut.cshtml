@@ -1,0 +1,112 @@
+﻿@model FiboInfraStructure.Entity.FiboLodge.RoomCheckIn
+@inject FiboLodge.InfraStructure.Repository.IRoomSetupRepository _roomRepo;
+@{
+    Layout = null;
+    var days =0;
+    var duration =0;
+    decimal amount=0;
+    decimal extendedCharge=0;
+    string roomName= string.Empty;
+    decimal roomCharges= 0;
+    decimal roomExtendedCharges= 0;
+    var roomList = await _roomRepo.GetAllRoomAsync();
+    if (Model.RoomSetupId.Contains(","))
+    {
+        string[] roomsetupId = Model.RoomSetupId.Split(",");
+        //var _room = await _roomRepo.GetByIdAsync(long.Parse(roomsetupId[0]));
+        //days = (DateTime.Now - Model.CreatedDate).Days;
+        days = (DateTime.Now - Model.CreatedDate).Days;
+        duration = (DateTime.Now.Hour - Model.CreatedDate.Hour) % 24;
+        for (int i = 0; i < roomsetupId.Length; i++)
+        {
+            var room = await _roomRepo.GetByIdAsync(long.Parse(roomsetupId[i]));
+            amount += days * room.Charges;
+            extendedCharge = duration * room.ExtendedRate;
+            roomName += string.Format("{0}{1}", room.RoomName, ", ");
+            roomCharges += room.Charges.ToDecimal();
+            roomExtendedCharges += room.ExtendedRate.ToDecimal();
+        }
+    }
+    else
+    {
+        var room = await _roomRepo.GetByIdAsync(long.Parse(Model.RoomSetupId));
+        days = (DateTime.Now - Model.CreatedDate).Days;
+        //days = (DateTime.Now - Model.CreatedDate).Days;
+        duration = (DateTime.Now.Hour - Model.CreatedDate.Hour) % 24;
+        amount += days * room.Charges;
+        extendedCharge = duration * room.ExtendedRate;
+        roomName = room.RoomName;
+        roomCharges = room.Charges.ToDecimal();
+        roomExtendedCharges = room.ExtendedRate.ToDecimal();
+
+    }
+}
+@using FiboInfraStructure;
+@inject FiboLodge.InfraStructure.Repository.IRoomSetupRepository _roomRepo;
+
+<form asp-action="CheckOut" asp-controller="RoomCheckIn" method="post">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(x => x.Id)
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">@Model.CustomerName</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-lg-6">
+                    <label for="CustomerName">Room Number<span style="color:red">*</span></label><br />
+                    <input type="text" class="form-control" id="CustomerName" value='@roomName' readonly autocomplete="off" />
+                    <div class="invalid-feedback">
+                        Please Enter Customer Name.
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <label for="CustomerName">Charge<span style="color:red">*</span></label><br />
+                    <input type="text" class="form-control" value='@roomCharges' readonly autocomplete="off" />
+                    <div class="invalid-feedback">
+                        Please Enter Customer Name.
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <label for="CustomerName">Number of Days<span style="color:red">*</span></label><br />
+                    <input type="text" class="form-control" id="CustomerName" value='@days' autocomplete="off" />
+                    <div class="invalid-feedback">
+                        Please Enter Customer Name.
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <label for="CustomerName">Amount<span style="color:red">*</span></label><br />
+                    <input type="text" class="form-control" value='@amount' autocomplete="off" />
+                    <div class="invalid-feedback">
+                        Please Enter Customer Name.
+                    </div>
+                </div>
+            </div>
+          @*  <div class="row">
+                <div class="col-lg-6">
+                    <label for="CustomerName">Extended Duration<span style="color:red">*</span></label><br />
+                    <input type="text" class="form-control" id="CustomerName" value='@duration' autocomplete="off" />
+                    <div class="invalid-feedback">
+                        Please Enter Customer Name.
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <label for="CustomerName">Extended Charge <span style="color:red"></span></label><br />
+                    <input type="text" class="form-control" value='@roomExtendedCharges' autocomplete="off" />
+                    <div class="invalid-feedback">
+                        Please Enter Customer Name.
+                    </div>
+                </div>
+            </div>*@
+        </div>
+        <div class="modal-footer">
+            <div class="btn-group-sm">
+                <button type="button" class="btn  btn-secondary" data-dismiss="modal">&times; No</button>
+                <button type="submit" class="btn  btn-success"><i class="feather icon-thumbs-up"></i> Yes</button>
+            </div>
+        </div>
+    </div>
+</form>

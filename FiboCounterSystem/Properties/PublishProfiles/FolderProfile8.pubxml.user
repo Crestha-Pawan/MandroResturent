@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\FiboCounterBilling_Publish_File</_PublishTargetUrl>
+    <History>True|2022-01-26T11:50:53.5240589Z;True|2022-01-26T16:55:26.4601860+05:45;</History>
+  </PropertyGroup>
+</Project>

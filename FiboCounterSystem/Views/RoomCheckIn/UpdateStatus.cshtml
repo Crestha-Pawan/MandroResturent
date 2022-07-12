@@ -1,0 +1,42 @@
+﻿@model FiboLodge.Src.Dto.RoomSetupDto
+
+@{ Layout = null; }
+
+<form asp-action="UpdateStatus" asp-controller="RoomCheckIn" method="post">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(x => x.BranchId)
+    @Html.HiddenFor(x => x.CreatedBy)
+    @Html.HiddenFor(x => x.CreatedDate)
+    @Html.HiddenFor(x => x.Id)
+    @Html.HiddenFor(x => x.Charges)
+    @Html.HiddenFor(x => x.Duration)
+    @Html.HiddenFor(x => x.ExtendedDuration)
+    @Html.HiddenFor(x => x.ExtendedRate)
+    @Html.HiddenFor(x => x.RoomName)
+    @Html.HiddenFor(x => x.Size)
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="col-lg-6">
+                <label for="Duration">Status<span style="color:red">*</span></label><br />
+                <select asp-for="Status" class="form-control" autocomplete="off" required>
+                    <option value="VacantClean">Vacant Clean</option>
+                    <option value="Engaged">Engaged</option>
+                    <option value="VacantDirty">Vacant Dirty</option>
+                    <option value="Reserved">Reserved</option>
+                </select>
+                <div class="invalid-feedback">
+                    Please Enter Status.
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div class="btn-group-sm">
+                <button type="button" class="btn  btn-secondary" data-dismiss="modal">&times; Cancel</button>
+                <button type="submit" class="btn  btn-success"><i class="ti-thumb-up"></i> Update</button>
+            </div>
+        </div>
+    </div>
+</form>

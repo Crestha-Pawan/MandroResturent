@@ -1,0 +1,84 @@
+﻿@model FiboInventory.Src.Dto.InventoryDto
+@{
+    ViewBag.Title = "Update";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@inject FiboInventory.InfraStructure.Repository.IItemRepository _itemRepo;
+@inject FiboOffice.InfraStructure.Repository.IMeasuringUnitRepository _muRepo;
+
+<form asp-action="Update" asp-controller="Inventory"  id="main" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="CreatedBy" />
+    <input type="hidden" asp-for="CreatedDate" />
+    <input type="hidden" asp-for="Date" />
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0 text-black-50">Update Inventory</h4>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="table">
+                            <thead>
+                                <tr style=" text-align:center; background-color: #4CAF50; color: white; height: 20px; line-height: 20px; text-align: center">
+                                    <th style="width:10%">Item</th>
+                                    <th style="width:10%">Quantity</th>
+                                    <th style="width:10%">Unit</th>
+                                    <th style="width:3%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        @Html.DropDownListFor(x => x.ItemId, Model.getItemList(_itemRepo, Model.ItemId), new { @class = "form-control" })
+                                    </td>
+                                    <td>
+                                        @Html.TextBoxFor(x => x.Quantity, new { @class = "form-control form-control-ddl Debit" })
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="form-group">
+                        <div class="col-md-12" style="text-align:right">
+                            <button type="submit" class="btn  btn-success" id="btnSubmit"><i class="feather mr-2 icon-check-circle"></i>Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-danger',
+                placement: { from: 'top', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated rotateIn', exit: 'animated rotateOut' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message');
+    /**/
+    });
+    </script>
+}

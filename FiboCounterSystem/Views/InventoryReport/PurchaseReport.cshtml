@@ -1,0 +1,197 @@
+﻿@model FiboInventory.Src.ViewModel.InventoryViewModel
+@using FiboInfraStructure;
+@{ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "PurchaseReport";
+    decimal? total=0; }
+@{ long SN=0; }
+@inject FiboInventory.InfraStructure.Repository.IItemRepository _itemRepo;
+@inject FiboOffice.InfraStructure.Repository.IMeasuringUnitRepository _muRepo;
+<script type="text/javascript">
+    function CallPrint(strid) {
+        var mywindow = document.getElementById('Format');
+        var popupWin = window.open('', "Kaamana Format", 'width=350,height=150,location=no,left=200px');
+
+        popupWin.document.open();
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css"  href="../Content/bootstrap.min.css" /></head><body onload="window.print()">')
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css" href="../Content/print.css" /></head><body onload="window.print()">')
+        popupWin.document.write(mywindow.innerHTML);
+        popupWin.document.write('</html>');
+
+        popupWin.document.close();
+
+    }
+
+</script>
+
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            @using (Html.BeginForm("PurchaseReport", "InventoryReport", FormMethod.Get, new { @class = "form-view-data" }))
+            {
+<div class="row">
+    <div class="col-lg-12">
+        <div class="row">
+            <div class="col-lg-2">
+                From Date <br />
+                @Html.TextBoxFor(x => x.FromMiti, "{0:yyyy/MM/dd }", new { @class = "form-control nepali-datepicker", @placeholder = "yyyy/MM/dd", @autocomplete = "off" })
+            </div>
+            <div class="col-lg-2">
+                To Date<br />
+                @Html.TextBoxFor(x => x.ToMiti, "{0:yyyy/MM/dd }", new { @class = "form-control nepali-datepicker", @placeholder = "yyyy/MM/dd", @autocomplete = "off" })
+            </div>
+            <div class="col-lg-4">
+                <select asp-for="ItemId" asp-items="Model.ItemList" class="select2 custom-select form-control">
+                    <option>--Select item--</option>
+                </select>
+            </div>
+            <div class="btn btn-group" style="margin-top:21px;">
+                <button style="margin-top: -20px;" type="submit" class="btn btn-success"><i class="ti-filter">Search</i></button>
+                <button type="button" class="btn btn-success"
+                        style="margin-top: -20px; background-color: darkblue; color: white; font-weight: bold"
+                        onclick="CallPrint('strid')" data-ma-action="print">
+                    <i class="ti-printer">Print</i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>      }
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body" ng- id="Format">
+            <h4>Purchase Report</h4>
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>S.N</th>
+                                <th>
+                                    Last Purchase Date
+                                </th>
+                                <th>
+                                    Product Name
+                                </th>
+
+                                <th>Stock In Hand</th>
+                                <th>Last Purchase Qty</th>
+                                <th>Last Purchase Price</th>
+                                <th>Amount</th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.InventoryVMList)
+                            {
+                                SN++;
+                                var invItem = await _itemRepo.GetByIdAsync((long)item.ItemId);
+                                //var unit = await _muRepo.GetByIdAsync((long)item.MeasuringUnitId);
+                                total += item.Total.ToDecimal();
+                <tr>
+                    <td>
+                        @SN
+                    </td>
+                    <td>
+                        @item.LastPurchaseDate.ToDateTime().ToNepDate()
+                    </td>
+                    <td>
+                        @invItem.Name
+                    </td>
+                    <td>
+                        @item.Quantity
+                    </td>
+                    <td>
+                        @item.LastPurchaseQuantity
+                    </td>
+                    <td>
+                        @item.LastPurchasePrice
+                    </td>
+                    <td>
+                        @item.Total
+                    </td>
+                    <td style="text-align:center">
+                        <div class="btn-group-sm">
+                            <a href="@Url.Action("MonthlyReport","InventoryReport",new {id=item.ItemId })">
+                                <i class="ti-eye" data-toggle="tooltip" title="View"></i>
+                            </a>
+
+                        </div>
+                    </td>
+                </tr>}
+                            <tr>
+                                <td colspan="6" style="text-align:right">Total</td>
+                                <td>@total</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+    <script type="text/javascript">
+            $("#myModal").on('show.bs.modal', function (ke) {
+                const invID = $(ke.relatedTarget).attr('InvID');
+                const type = $(ke.relatedTarget).attr('ReferenceType');
+                var url = '@Url.Action("Delete","Inventory")' + "?id=" + invID;
+                if (invID > 0) {
+                    if (type == null) {
+                        $("#DeleteBody").load(url, function () {
+                            $("#myModal").modal('show');
+                        });
+                    }
+                    else {
+                        var url = '@Url.Action("UpdateNew","Inventory")' + "?id=" + invID;
+                    $("#DeleteBody").load(url, function () {
+                        $("#myModal").modal('show');
+                    });
+                }
+            }
+            else {
+                $("#myModal").modal('hide');
+            }
+        })
+    </script>
+
+    @if (ViewBag.Message != null)
+    {
+<script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-danger',
+                placement: { from: 'top', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated rotateIn', exit: 'animated rotateOut' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message');
+    /**/
+    });
+</script>}
+}

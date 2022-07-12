@@ -1,0 +1,604 @@
+﻿@model FiboBilling.Src.Dto.BillingDto
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "NewBilling";
+}
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@100&display=swap" rel="stylesheet">
+@inject FiboInventory.InfraStructure.Repository.IProductRepository _productRepo;
+@inject FiboOffice.InfraStructure.Repository.ITaxRepository _taxRepo;
+@inject FiboOffice.InfraStructure.Repository.IServiceChargeRepository _serviceChargeRepo;
+
+@{
+    decimal taxRate = 0;
+    decimal serviceChargeRate = 0;
+
+    if (Model.TaxId > 0)
+    {
+        var tax = await _taxRepo.GetByIdAsync(Model.TaxId.Value);
+        taxRate = tax.TaxPercent;
+    }
+    if (Model.ServiceChargeId > 0)
+    {
+        var sc = await _serviceChargeRepo.GetByIdAsync(Model.ServiceChargeId.Value);
+        serviceChargeRate = sc.ServicePercent;
+    }
+}
+<style>
+    input.largerCheckbox {
+        width: 30px;
+        height: 30px;
+    }
+
+    .btn-sm {
+        font-size: 13px;
+    }
+
+    .tableFixHead {
+        overflow: auto;
+        height: 700px;
+    }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+</style>
+
+<form asp-action="CreateNew" asp-controller="Billing" id="main" method="post">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="PrevTableId" value="@Model.TableId" />
+    <input type="hidden" asp-for="TableNo" />
+    <input type="hidden" asp-for="CreatedDate" />
+    <input type="hidden" asp-for="CreatedBy" />
+    <input type="hidden" asp-for="TaxId" />
+    <input type="hidden" asp-for="ServiceChargeId" />
+    <input type="hidden" asp-for="BillingDate" />
+    <input type="hidden" class="form-control tax" value='@taxRate' />
+    <input type="hidden" class="form-control service" value='@serviceChargeRate' />
+    <div class=row>
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label for="Name">Guest Name<span style="color:red">*</span></label>
+                            <input type="text" asp-for="GuestName" class="form-control" id="Name" autocomplete="off" />
+                            <div class="invalid-feedback">
+                                Please Enter A Name.
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="kot"> KOT/BOT By<span style="color:red">*</span></label>
+                            <input type="text" asp-for="KotBotBy" class="form-control" id="kot" required autocomplete="off">
+                            <div class="invalid-feedback">
+                                Please Enter A Payment method.
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <label for="Name">Table No(Change Table Here!)</label>
+                            <select asp-for="TableId" asp-items="Model.TableSalectList" id="CurrentTableId" class="form-control" required autocomplete="off">
+                                <option value="">
+                                    Please Select Table
+                                </option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please Select A Table .
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header"><h5><b>Table No:</b>@Model.TableNo</h5><hr /></div>
+                <div class="card-body">
+                    <table class="table table-bordered table-striped" id="cat_table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Categories
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <tr>
+                                    <td>
+                                        <button type="button" class="btn btn-info" onclick="ExpandProducts('@cat.Id')"><i class="ti-plus"></i> Order</button> &nbsp;&nbsp;  @cat.Name
+
+
+                                        <div id="@cat.Id" class="tableFixHead" style="display:none;background-color:white">
+                                            <table class="table table-bordered table-striped table-light catTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            Products
+                                                        </th>
+                                                        <th>
+                                                            Action
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var product in Model.OrderProducts.Where(x => x.ProductCategoryId == @cat.Id).ToList())
+                                                    {
+                                                        string btnSubId = "btnSubCategory" + @product.Id;
+                                                        <tr>
+                                                            <td style="font-size: 13px; font-weight: bold; background-color: white;">
+                                                                @product.Name
+                                                            </td>
+                                                            <td>
+                                                                <div class="overlay-edit">
+                                                                    <button type="button" data-loading-text="Loading..." class="btn-sm btn-icon btn-success" id="btnAddCategory" onclick="checkProductId('@product.Id')" style="display: none; background-color: white;"><i class="ti-plus"></i></button>
+                                                                    <button type="button" class="btn-sm btn-icon btn-success btnAddCategory" id="btnAddCategory" data-ProductId="@product.Id"><i class="ti-plus"></i></button>
+
+                                                                    @if (Model.BillingInfo.Where(x => x.ProductId == product.Id).Any())
+                                                                    {
+                                                                        <button type="button" class="btn-sm btn-danger" id=@btnSubId onclick="reduceOrder('@product.Id')"><i class="ti-trash"></i></button>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <button type="button" class="btn-sm btn-danger" id=@btnSubId onclick="reduceOrder('@product.Id')" style="display:none"><i class="ti-trash"></i></button>
+                                                                    }
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header" id="table_toggle" style="display:none">
+                    <div class="row">
+                        @foreach (var table in Model.Tables)
+                        {
+                            <div class="col-lg-3" style="padding:2px">
+                                <a type="button" class="btn btn-block btn-primary" target="_blank" asp-action="newbilling" asp-controller="Billing" asp-route-TableId="@table.Id">
+                                    @table.Name
+                                </a>
+                            </div>
+                        }
+
+                    </div>
+                    <hr />
+                </div>
+                <div class="card-header" id="btn_table">
+                    <p style="text-align:left">SAVE ORDER AFTER TAKING IT!!!</p>
+                    <button class="btn-sm btn-icon" style="padding:2px; cursor:pointer" href="#!" type="button" onclick="toggleTable()"><i class="ti-list"></i> Show Table</button>
+                    <button class="btn-sm  btn-icon " style="animation-fill-mode: unset; border: 2px solid #bfba8d69; background-color: #ffdd07e0; padding: 3px; cursor: pointer"><i class="ti-file"></i> Save Order</button>
+                    <button type="submit" class="btn-icon btn-sm btn-success" style="background-color:  #5a583e ;padding:3px;animation-fill-mode: unset;border: 2px solid #bfba8d69; " asp-action="PrintKOT" asp-controller="Billing" asp-route-id="@Model.Id">
+                        <i class="ti-printer">Print(KOT)</i>
+                    </button>
+                    <button type="submit" class="btn-sm btn-icon btn-success" style="animation-fill-mode: unset;border: 2px;padding:5px;" asp-action="PrintBOT" asp-controller="Billing" asp-route-id="@Model.Id">
+                        <i class="ti-printer">Print(BOT)</i>
+                    </button>
+                    <button type="submit" class="btn-sm btn-icon btn-danger" style="animation-fill-mode: unset;border: 2px;padding:5px;" asp-action="CancelOrder" asp-controller="Billing" asp-route-TableId="@Model.TableId">&times; Reset Table</button>
+                    &nbsp;&nbsp;&nbsp;<br />
+                </div>
+                <div>
+                    @*<marquee direction="right"> <b style="font-family: 'IBM Plex Sans Arabic', sans-serif; ">*@ @*</b></marquee>*@
+                </div>
+                @*<div id="divImageLoader">
+                        <img src="~/spinner-loader-animation.gif" style="width:500px;height:500px" />
+                    </div>*@
+                <div class="card-body tableFixHead">
+                    <table class="table table-bordered table-table-striped " id="order_table">
+                        <thead>
+                            <tr>
+                                <th>Take away</th>
+                                <th>Product Name</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int k = 0; k < Model.BillingInfo.Count(); k++)
+                            {
+                                var className = "new_row " + @Model.BillingInfo[k].ProductId.ToString();
+                                var product = await _productRepo.GetByIdAsync(Model.BillingInfo[k].ProductId.Value);
+                                bool check = Model.BillingInfo[k].IsTakeAway;
+                                <tr class="new_row @Model.BillingInfo[k].ProductId">
+                                    <th>
+                                        @if (check == true)
+                                        {
+                                            <span class="badge badge-light-success" style="font-size: 15px">Yes</span>
+                                        }
+                                        @if (check == false)
+                                        {
+                                            <span class="badge badge-light-danger" style="font-size: 15px">No</span>
+                                        }
+
+                                        <input type="hidden" asp-for="BillingInfo[k].IsTakeAway" />
+                                        <input type="text" class="form-control" value='@Model.BillingInfo[k].TakeAwayQuantity' style="font-size: 8px;margin-top: -13px;margin-left: 44px;width: 39px;" readonly />
+                                        <input type="hidden" asp-for="BillingInfo[k].TakeAwayQuantity" />
+                                    </th>
+                                    <th>
+                                        <input type="text" class="form-control" style="font-size: 10px;" value='@product.Name' readonly />
+                                        <input type="hidden" asp-for="BillingInfo[k].ProductId" />
+                                    </th>
+                                    <th>
+                                        <input type="text" class="form-control quantity" style="font-size: 10px;" value='@Model.BillingInfo[k].Quantity' readonly />
+                                        <input type="hidden" class="form-control quantity" asp-for="BillingInfo[k].Quantity" />
+                                    </th>
+                                    <th>
+                                        <input type="text" class="form-control cost" style="font-size: 10px;" value='@Model.BillingInfo[k].Price' readonly />
+                                        <input type="hidden" class="form-control cost" asp-for="BillingInfo[k].Price" />
+                                    </th>
+                                    <th>
+                                        <input type="text" class="form-control amount cashupdate" style="font-size: 10px;" value='@Model.BillingInfo[k].Amount' readonly />
+                                        <input type="hidden" class="form-control amount" asp-for="BillingInfo[k].Amount" />
+                                    </th>
+                                </tr>
+                            }
+                        </tbody>
+                        @*<tr>
+                                <td colspan="4" style="text-align:center;color:red;font-size:12px"></td>
+                            </tr>*@
+                        <tr class="final_row">
+                            <td colspan="4" style="text-align:right;width:10px"><label class="col-form-label">Total Amount :</label></td>
+                            <td><input class="form-control" asp-for="Total" type="text" readonly /></td>
+                        </tr>
+                        <tr class="final_row">
+                            <td colspan="4" style="text-align:right"><label class="col-form-label">Discount :</label></td>
+                            <td><input class="form-control" asp-for="Discount" type="text" onkeyup="changeNetAmount()" /></td>
+                        </tr>
+                        @*<tr class="final_row">
+                                <td colspan="4" style="text-align:right"><label class="col-form-label">Tax Amount :</label></td>
+                                <td><input class="form-control" asp-for="TaxAmount" type="text" onkeyup="changeNetAmount()" /></td>
+                            </tr>
+                            <tr class="final_row">
+                                <td colspan="4" style="text-align:right"><label class="col-form-label">Service Charge :</label></td>
+                                <td><input class="form-control" asp-for="ServiceCharge" type="text" onkeyup="changeNetAmount()" /></td>
+                            </tr>*@
+                        <tr class="final_row">
+                            <td colspan="4" style="text-align:right"><label class="col-form-label">Net Amount :</label></td>
+                            <td><input class="form-control" asp-for="NetAmtPayable" type="text" readonly /></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts{
+    <link href="~/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet" />
+    <link href="~/datatables.net-bs4/css/responsive.dataTables.min.css" rel="stylesheet" />
+    <script src="~/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="~/datatables.net-bs4/js/dataTables.responsive.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
+    <script type="text/javascript">
+        $("button").click(function ()   {
+            var $btn = $(this);
+            $btn.button('loading');
+            // simulating a timeout
+            setTimeout(function () {
+                $btn.button('reset');
+            }, 1000);
+        });
+
+    function changeNetAmount() {
+        var taxAmount = $("#TaxAmount").val();
+        var serviceCharge = $("#ServiceCharge").val();
+        var discount = $("#Discount").val();
+        var total = $("#Total").val();
+        $("#NetAmtPayable").val(parseFloat(total) - parseFloat(discount) + parseFloat(taxAmount) + parseFloat(serviceCharge));
+    }
+    $(document).on('keyup', '#Discount', function () {
+        var discount = $(this).val();
+        var total = $("#Total").val();
+
+        $("#NetAmtPayable").val(parseFloat(total) - parseFloat(discount));
+    })
+
+    function toggleTable(){
+        var x = document.getElementById("table_toggle");
+        var y = document.getElementById("btn_table");
+
+         if (x.style.display === "none") {
+             x.style.display = "block";
+             y.style.marginTop = "-40px";
+            }
+            else
+            {
+            x.style.display = "none";
+            y.style.marginTop = "0px";
+        }
+    }
+
+    function ExpandProducts(CategoryId) {
+        var x = document.getElementById(CategoryId);
+        if (x.style.display === "none") {
+             x.style.display = "block";
+            }
+            else
+            {
+            x.style.display = "none";
+        }
+        }
+        let i = 0;
+        function showLoading() {
+            //$('#divImageLoader').show();
+            i = 1;
+        }
+        function hideLoading() {
+            //$('#divImageLoader').hide();
+            i = 0;
+        }
+
+        function takeOrder(ProductId, qty) {
+            showLoading();
+        $.ajax({
+            data:{productId: ProductId},
+            dataType:"Json",
+            type:"GET",
+            url:'@Url.Action("LoadProductRate","JsonRequest")',
+            success: function (datathis) {
+                var amount = qty*datathis.cost;
+                var count = $(".new_row").length;
+                var row = '<tr class="new_row ' + ProductId + '">' +
+                '<td><input type="checkbox" name="BillingInfo[' + count + '].IsTakeAway" style="margin-top: 2px;" class="checkbox-success largerCheckbox chkIsTakeAway" id="chkIsTakeAway" value="true" /><input type="hidden" name="BillingInfo[' + count + '].IsTakeAway" value="false"/><input type="text" name="BillingInfo[' + count + '].TakeAwayQuantity" class="TakeAwayQuantity form-control" style="margin-top:-37px;margin-left:40px;width: 45px;" /></td>' +
+                '<td><input class="form-control" type="text" value="' + datathis.name +'" readonly /><input type="hidden" name="BillingInfo[' + count + '].ProductId" value=' + ProductId +' /></td>' +
+                '<td><input class="form-control quantity" type="text" name="BillingInfo[ ' + count + '].Quantity" value=' + qty +' readonly /><input type="hidden" class="form-control quantity" name="BillingInfo[' + count + '].Quantity" value=' + qty +' /></td>'+
+                '<td><input class="form-control cost" type="text" name="BillingInfo[ ' + count + '].Price" value=' + datathis.cost +' readonly /><input type="hidden" class="form-control cost" name="BillingInfo[' + count + '].Price" value=' + datathis.cost +' /></td>'+
+                '<td><input class="form-control amount" type="text" name="BillingInfo[ ' + count + '].Amount" value=' + amount +' readonly /><input type="hidden" class="form-control amount cash" name="BillingInfo[' + count + '].Amount" value=' + amount +' /></td>'+
+                    '</tr>'
+                var discount = $("#Discount").val();
+
+                var total = $("#Total").val();
+                var net_total = $("#NetAmtPayable").val();
+
+                var tax = $(".tax").val();
+                var service = $(".service").val();
+                if (total > 0) {
+                    $("#Total").val(parseFloat(total) + parseFloat(amount));
+                    var taxAmount = tax * (parseFloat(total) + parseFloat(amount)) / 100;
+                    var serviceCharge = service * (parseFloat(total) + parseFloat(amount)) / 100;
+
+                    $("#TaxAmount").val(taxAmount);
+                    $("#ServiceCharge").val(serviceCharge);
+                    var net_payable_total = parseFloat(total) - parseFloat(discount) + parseFloat(amount) + parseFloat(taxAmount) + parseFloat(serviceCharge);
+                    $("#NetAmtPayable").val(net_payable_total);
+                }
+                else {
+                    $("#Total").val(amount);
+
+                    var taxAmount = tax * amount / 100;
+                    var serviceCharge = service * amount / 100;
+
+                    $("#TaxAmount").val(taxAmount);
+                    $("#ServiceCharge").val(serviceCharge);
+                    var net_payable_total = parseFloat(amount) - parseFloat(discount) + parseFloat(taxAmount) + parseFloat(serviceCharge);
+                    $("#NetAmtPayable").val(net_payable_total);
+                }
+                $("#order_table").append(row);
+                hideLoading();
+            }
+        })
+    }
+
+
+            $(document).on('click', '#btnAddCategory', function (event) {
+
+                event.preventDefault();
+                var id = $(this).attr("data-ProductId");
+                checkProductId(id);
+            })
+
+
+        function checkProductId(ProductId) {
+        var btnSubId = "btnSubCategory" + ProductId;
+        var className = "." + ProductId;
+        var count = $(className).length;
+        if (count > 0) {
+
+            var row = $(className).closest("tr");
+            var prevAmount = row.find(".amount").val();
+
+            if(prevAmount == 0)
+            {
+                row.show();
+                //row.css("display", "block");
+            }
+            var quantity = row.find(".quantity").val();
+            var cost = row.find(".cost").val();
+            var discount = $("#Discount").val();
+
+            quantity = parseInt(quantity) + 1;
+            amount = quantity*cost;
+            row.find(".quantity").val(quantity);
+            row.find(".amount").val(amount);
+
+            var total_qty = $("#Total").val();
+            //var new_total = parseFloat(total_qty) + parseFloat(cost);
+            //$("#Total").val(new_total);
+            var new_total = getTotalBillingAmount();
+            $("#Total").val(new_total);
+
+            var tax = $(".tax").val();
+            var service = $(".service").val();
+
+            var tax_amount = tax * new_total / 100;
+            var sc = service * new_total / 100;
+
+            $("#TaxAmount").val(tax_amount);
+            $("#ServiceCharge").val(sc);
+
+            var net_total = $("#NetAmtPayable").val();
+            var new_net_total = parseFloat(new_total) - parseFloat(discount) + parseFloat(tax_amount) + parseFloat(sc);
+            $("#NetAmtPayable").val(new_net_total);
+            var btnAdd = document.getElementById(btnSubId);
+            btnAdd.style.display = "inline";
+        }
+        else {
+            if (i == 0 ) {
+            var qty = count + 1;
+            takeOrder(ProductId, qty);
+            var btnAdd = document.getElementById(btnSubId);
+                btnAdd.style.display = "inline";
+            }
+        }
+    }
+
+    function deleteRow(className) {
+        var row = $(className).closest("tr");
+        row.hide();
+        //row.css("display", "none");
+        //row.remove();
+
+    }
+
+        function reduceOrder(ProductId) {
+            debugger;
+        var className = "." + ProductId;
+        var count = $(className).length;
+        if(count > 0){
+            var row = $(className).closest("tr");
+            var quantity = row.find(".quantity").val();
+            var cost = row.find(".cost").val();
+            var total_qty = $("#Total").val();
+            var net_amount = $("#NetAmtPayable").val();
+            var discount = $("#Discount").val();
+
+            if(quantity > 0){
+                quantity = parseInt(quantity) - 1;
+                amount = quantity*cost;
+                row.find(".quantity").val(quantity);
+                row.find(".amount").val(amount);
+
+                //var new_total = parseFloat(total_qty) - parseFloat(cost);
+                //$("#Total").val(new_total);
+                var new_total = getTotalBillingAmount();
+                $("#Total").val(new_total);
+
+                var tax = $(".tax").val();
+                var service = $(".service").val();
+
+                var tax_amount = tax * new_total / 100;
+                var sc = service * new_total / 100;
+
+                $("#TaxAmount").val(tax_amount);
+                $("#ServiceCharge").val(sc);
+
+                var new_net_amount = parseFloat(new_total) - parseFloat(discount) + parseFloat(tax_amount) + parseFloat(sc);
+                $("#NetAmtPayable").val(new_net_amount);
+
+                if(quantity == 0){
+                    deleteRow(className);
+                    var btnSubId = "btnSubCategory" + ProductId;
+                    var btnAdd = document.getElementById(btnSubId);
+                    btnAdd.style.display = "none";
+                }
+            }
+            else{
+                quantity = 0;
+                amount = 0;
+                row.find(".quantity").val(quantity);
+                row.find(".amount").val(amount);
+                deleteRow(className);
+            }
+
+        }
+        else {
+            $("#Total").val(0);
+            $("#NetAmtPayable").val(0);
+            $("#TaxAmount").val(0);
+            $("#ServiceCharge").val(0);
+        }
+    }
+    </script>
+    <script>
+        $(function () {
+            $('.catTable').DataTable({
+                "paging": false,
+                "ordering": false,
+                "info": false
+            });
+        });
+    </script>
+    <script>
+        $('form').submit(function () {
+           
+            var _flag = 0;
+            var id = $("#CurrentTableId").val();
+            var _id = $("#PrevTableId").val();
+            if (id == _id) {
+                return true;
+            }
+            else {
+                $.ajax({
+                    async: false,
+                    method: 'get',
+                    url: '@Url.Action("CheckTable")?id=' + id,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (check) {
+                        debugger;
+                        if (check == false) {
+                            $("#message").text("Table is occupied.");
+                            $("#message").show();
+                            setTimeout(function () { $("#message").hide(); }, 2000);
+                            _flag = 1;
+                        }
+                        else {
+                            $.ajax({
+                                async: false,
+                                method: 'get',
+                                url: '@Url.Action("GetTableNo")?id=' + id,
+                                contentType: "application/json; charset=utf-8",
+                                success: function (tableNo) {
+                                    $("#TableNo").val(tableNo);
+                                },
+                                error: function (tableNo) {
+
+                                }
+                            });
+                            this.submit();
+                        }
+                    },
+                    error: function (data) {
+
+                    }
+                });
+                if (_flag == 1) {
+                    return false;
+                }
+                   }
+        });
+        function getTotalBillingAmount() {
+       
+            var cash = 0;
+            var cashupdate = 0;
+            $('.cash').each(function () {
+                debugger;
+                cash += parseFloat($(this).val());
+            });
+            $('.cashupdate').each(function () {
+                debugger;
+                cashupdate += parseFloat($(this).val()); 
+
+            });
+            var total = cash + cashupdate;
+            return total;
+        }
+        
+    </script>
+}

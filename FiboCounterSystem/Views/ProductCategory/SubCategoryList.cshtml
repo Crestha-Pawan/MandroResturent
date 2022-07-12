@@ -1,0 +1,38 @@
+﻿@model FiboInventory.Src.ViewModel.ProductSubCategoryViewModel
+
+@{ Layout = null;
+}
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title"style="font-size:15px">
+            @if (Model.ProductCategory != null)
+            {
+                <label>Product Name:</label>
+                @Model.ProductCategory.Name
+            }
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"><i class="ti-close"></i></span></button>
+    </div>
+    <div class="modal-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>
+                       Sub-Category Name
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ingredient in Model.productSubCategory)
+                {
+                    <tr>
+                        <td>
+                            @ingredient.Name
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

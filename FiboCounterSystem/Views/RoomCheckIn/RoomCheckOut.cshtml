@@ -1,0 +1,170 @@
+﻿@model FiboLodge.Src.ViewModel.RoomCheckInViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index";
+}
+@{ string room = string.Empty;
+    var roomList = await _roomRepo.GetAllRoomAsync(); }
+@inject FiboLodge.InfraStructure.Repository.IRoomSetupRepository _roomRepo;
+@using FiboInfraStructure;
+
+<div class="col-sm-12">
+    <div class="col-lg-12">
+        <div class="card-body">
+            <form asp-action="RoomCheckOut" asp-controller="RoomCheckIn" method="post">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                Room<br />
+                                <select asp-for="RoomSetupId" asp-items="Model.RoomSetupSelectList" class="form-control">
+                                </select>
+                            </div>
+                            <div class="btn btn-group">
+                                <button type="submit" class="btn btn-success">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>
+                                    Check In Time
+                                </th>
+                                <th>
+                                    Room
+                                </th>
+                                <th>
+                                    Customer's Name
+                                </th>
+                                <th>
+                                    Contact No
+                                </th>
+                                <th>
+                                    Advance
+                                </th>
+                                <th style="text-align:center">
+                                    Action Name
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.RoomCheckInList.Where(x => x.IsCheckIn()))
+                            {
+                                if (item.RoomSetupId.Contains(","))
+                                {
+                                    room = string.Empty;
+                                    string[] roomsetupId = item.RoomSetupId.Split(",");
+                                    for (int i = 0; i < roomsetupId.Length; i++)
+                                    {
+                                        room += string.Format("{0}{1}", roomList.Where(x => x.Id == long.Parse(roomsetupId[i])).Select(x => x.RoomName).FirstOrDefault(), ", ");
+                                    }
+                                }
+                                else
+                                {
+                                    room = roomList.Where(x => x.Id == long.Parse(item.RoomSetupId)).Select(x => x.RoomName).FirstOrDefault();
+                                }
+                                <tr>
+                                    <td>
+                                        @item.CreatedDate.ToDateTime().ToNepDate()
+                                    </td>
+                                    <td>
+                                        @room
+                                    </td>
+                                    <td>
+                                        @item.CustomerName
+                                    </td>
+                                    <td>
+                                        @item.ContactNo
+                                    </td>
+                                    <td>
+                                        @item.Advance
+                                    </td>
+                                    <td style="text-align:center">
+                                        <div class="btn-group-sm">
+                                            @if (item.IsCheckIn())
+                                            {
+
+                                                <a type="button" class="btn btn-warning" href="#!" ReferenceType="toggle" data-toggle="modal" RoomCheckInId="@item.Id" data-target="#myModal">
+                                                    <i class="ti-thumb-down" data-toggle="tooltip" title="Check-Out"></i>
+                                                </a>
+                                            }
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+    <script type="text/javascript">
+    $("#myModal").on('show.bs.modal', function (ke) {
+        const roomId = $(ke.relatedTarget).attr('RoomCheckInId');
+        const type = $(ke.relatedTarget).attr('ReferenceType');
+        if (roomId > 0) {
+             if (type == "toggle") {
+                 var url = '@Url.Action("CheckOut", "RoomCheckIn")' + "?id=" + roomId;
+                    $("#DeleteBody").load(url, function () {
+
+                        $("#myModal").modal('show');
+                    });
+                }
+        }
+
+    })
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+    @if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-inverse',
+                placement: { from: 'bottom', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated fadeInRight', exit: 'animated fadeOutRight' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message', 'success');
+    /**/
+    });
+        </script>
+    }
+}

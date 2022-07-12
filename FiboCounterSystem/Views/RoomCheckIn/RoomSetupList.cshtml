@@ -1,0 +1,171 @@
+﻿@model FiboLodge.Src.ViewModel.RoomCheckInViewModel
+@{
+
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+
+    ViewBag.Title = "RoomSetupList";
+}
+<div class="col-sm-12">
+    <div class="card">
+        <div class="card-body">
+            <button class="btn btn-success" data-toggle="modal" RoomId="0" data-target="#myModal"><i class="ti-plus"></i> Check-IN</button>
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                                <th style="text-align:center">
+                                    Action Name
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.RoomSetupList)
+
+
+                            {
+
+                                <tr>
+                                    <td>
+                                        @item.RoomName
+                                    </td>
+                                    <td>
+                                        @if (FiboInfraStructure.Enums.Status.VacantClean.ToString() == item.Status)
+
+
+                                        {
+                                            <span class="badge badge-light-success">Vacant Clean</span>
+
+
+                                        }
+                                                            else if (FiboInfraStructure.Enums.Status.Engaged.ToString() == item.Status)
+
+
+                                                    {
+                                                    <span class="badge badge-light-danger">Engaged</span>
+
+
+                                                    }
+
+
+                                                    else if (FiboInfraStructure.Enums.Status.VacantDirty.ToString() == item.Status)
+
+
+                                                    {
+                                                    <span class="badge badge-light-danger">Vacant Dirty</span>
+
+
+                                                    }
+
+
+                                                    else
+                                                    {
+                                                    <span class="badge badge-light-danger">Reserved</span>}
+
+                                                </td>
+                                                <td style="text-align:center">
+                                                    <div class="btn-group-sm">
+                                                        @if (FiboInfraStructure.Enums.Status.VacantDirty.ToString() == item.Status)
+
+
+                                                        {
+                                                            <a type="button" class="btn btn-warning" href="#!" ReferenceType="UpdateStatus" data-toggle="modal" RoomId="@item.Id" data-target="#myModal">
+                                                                <i class="ti-thumb-up"></i>Update Status
+                                                            </a>
+
+
+                                                        }
+                                            @if (FiboInfraStructure.Enums.Status.VacantClean.ToString() == item.Status)
+
+
+                                            {
+                                                <a type="button" class="btn btn-warning" href="#!" ReferenceType="UpdateStatus" data-toggle="modal" RoomId="@item.Id" data-target="#myModal">
+                                                    <i class="ti-thumb-up"></i>Reserve
+                                                </a>
+
+
+                                            }
+                                        </div>
+
+                                    </td>
+                                </tr>
+
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+<script type="text/javascript">
+    $("#myModal").on('show.bs.modal', function (ke) {
+        const roomId = $(ke.relatedTarget).attr('RoomId');
+        const type = $(ke.relatedTarget).attr('ReferenceType');
+        if (roomId > 0) {
+            if (type == "UpdateStatus") {
+                var url = '@Url.Action("UpdateStatus", "RoomCheckIn")?id=' + roomId ;
+                $("#DeleteBody").load(url, function () {
+                    $("#myModal").modal('show');
+                });
+            }
+        }
+        else {
+            var url = '@Url.Action("Create", "RoomCheckIn")';
+            $("#DeleteBody").load(url, function () {
+                $("#myModal").modal('show');
+            });
+        }
+    })
+
+</script>
+
+    @if (ViewBag.Message != null)
+    {
+<script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-inverse',
+                placement: { from: 'bottom', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated fadeInRight', exit: 'animated fadeOutRight' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message', 'success');
+    /**/
+    });
+</script>
+
+
+}
+}

@@ -1,0 +1,125 @@
+﻿@model Payroll.Src.ViewModel.SalarySheetViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Index";
+    int sn = 0;
+    decimal? netsalary = 0;
+}
+@using FiboInfraStructure;
+@inject FiboOffice.InfraStructure.Repository.IEmployeeRepository _re;
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-header">
+            <form asp-action="SalarySheetReport" asp-controller="SalarySheet" method="post">
+                <div class="col-lg-12">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label>Name</label>
+                            <select asp-for="EmployeeId" asp-items="Model.EmployeeList" class="form-control" autocomplete="off" id="EmployeeId" required></select>
+                        </div>
+                        <div class="btn btn-sm  btn-group" style="margin-top: 17px;">
+                            <button type="submit" class="btn btn-success"><i class="ti-filter">Search</i></button>
+                           
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-body">
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>SN</th>
+                                <th>Name</th>
+                                <th style="width:120px">
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Employees)
+                            {
+                                //var employee = await _re.GetByIdAsync((long)item.EmployeeId);
+                                var salarysheet = Model.SalarySheets.Where(x => x.EmployeeId == item.Id).ToList();
+                                @foreach (var salary in salarysheet)
+                                {
+                                    netsalary += salary.NetSalary.ToDecimal();
+                                }
+                                sn++;
+
+                                <tr>
+                                    <td>
+                                        @sn
+                                    </td>
+                                    <td>
+                                        @item.Name
+                                    </td>
+
+
+                                    <td style="text-align:center">
+
+                                        <div class="overlay-edit">
+
+                                            <a href="@Url.Action("Report","SalarySheet", new { empId=item.Id})"><i class="ti-eye" data-toggle="tooltip" title="Salary Report!" aria-hidden="true" style="font-size:21px; text-align:center"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+{
+    <script type="text/javascript">
+    $("#myModal").on('show.bs.modal', function (ke) {
+        const SalaryId = $(ke.relatedTarget).attr('SalaryId');
+        const type = $(ke.relatedTarget).attr('ReferenceType');
+        if (SalaryId > 0) {
+            if (type == null) {
+                var url = '@Url.Action("Delete", "SalarySheet")' + "?id=" + SalaryId;
+                $("#DeleteBody").load(url, function () {
+
+                    $("#myModal").modal('show');
+                });
+            }
+            else {
+                var url = '@Url.Action("Update", "SalarySheet")' + "?id=" + SalaryId;
+                $("#DeleteBody").load(url, function () {
+
+                    $("#myModal").modal('show');
+                });
+            }
+        }
+        else {
+             var url = '@Url.Action("Create", "SalarySheet")';
+             $("#DeleteBody").load(url, function () {
+
+                 $("#myModal").modal('show');
+             });
+         }
+    })
+
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    </script>
+}
+
+

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="InfraStructure\Repository\Interface1.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Src\JsomModel\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FiboAddress\FiboAddress.csproj" />
+    <ProjectReference Include="..\FiboInfraStructure\FiboInfraStructure.csproj" />
+  </ItemGroup>
+
+</Project>

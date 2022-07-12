@@ -1,0 +1,145 @@
+﻿@model FiboInventory.Src.ViewModel.ProductViewModel
+@{ Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Create"; }
+@inject FiboInventory.InfraStructure.Repository.IProductCategoryRepository _catrepos;
+@inject FiboInventory.InfraStructure.Repository.IProductSubCategoryRepository _Subcatrepos;
+@inject FiboInventory.InfraStructure.Repository.IIngredientRepository _ingredietnrepos;
+
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <form asp-action="Index" asp-controller="Product" method="get">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <select asp-for="ProductId" asp-items="Model.ProductList" class="select2 form-control custom-select">
+                            <option>--Select Product--</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="submit" class="btn btn-sm btn-info"><i class="ti-filter"></i> Search</button>
+                    </div>
+                </div>
+            </form>
+
+            <div style="text-align:left">
+                <a class="btn  btn-success" type="button" asp-action="Create" asp-controller="Product"><i class="ti-plus"></i>Create New</a>
+            </div>
+
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th></th>
+                                <th>
+                                    Name
+                                </th>
+                                <th>
+                                    Cost
+                                </th>
+
+                                @*<th>
+                                SubCategory
+                            </th>*@
+                                <th style="text-align:center">
+                                    Action Name
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.products)
+                            {
+                                var ingredientlist = await _ingredietnrepos.GetAllIngredientAsync();
+                                var subCat = ingredientlist.Where(x => x.ProductId == item.Id).ToList();
+
+                                <tr>
+                                    <td>
+                                        <button type="button" data-toggle="modal" ProductIdForingredient="@item.Id" data-target="#myModal"><i class="ti-plus" data-toggle="tooltip" title="ingredient"></i></button>
+                                    </td>
+                                    <td>
+                                        @item.Name
+                                    </td>
+                                    <td>
+                                        @item.Cost
+                                    </td>
+                                    @*<td>
+                                    @if (item.ProductCategoryId != null)
+                                    {
+                                        var category = await _catrepos.GetByIdAsync((long)item.ProductCategoryId);
+                                        @category.Name
+                                    }
+
+                                </td>*@
+                                    @*<td>
+                                    @if (item.ProductSubCategoryId != null)
+                                    {
+                                        var Subcategory = await _Subcatrepos.GetByIdAsync((long)item.ProductSubCategoryId);
+                                        @Subcategory.Name
+                                    }
+                                </td>*@
+                                    <td style="text-align:center">
+                                        <div class="btn-group-sm">
+                                            <a type="button" class="btn btn-secondary" asp-action="Update" asp-controller="Product" asp-route-id="@item.Id">
+                                                <i class="ti-pencil-alt" data-toggle="tooltip" title="Edit"></i>
+                                            </a>
+                                            <a type="button" class="btn btn-danger" href="#!" data-toggle="modal" ProductId="@item.Id" data-target="#myModal"><i class="ti-trash"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md" id="DeleteBody">
+
+        <!-- /.modal-content -->
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@section Scripts
+    {
+    <script type="text/javascript">
+        $("#myModal").on('show.bs.modal', function (ke)
+        {
+
+            const id = $(ke.relatedTarget).attr('ProductIdForingredient');
+            const productId = $(ke.relatedTarget).attr('ProductId');
+
+                if (id > 0) {
+                    var url = '@Url.Action("IngredientList", "Product")' + "?ProductId=" + id;
+                    $("#DeleteBody").load(url, function () {
+
+                        $("#myModal").modal('show');
+                    });
+                }
+
+            if (productId > 0)
+            {
+                     var url = '@Url.Action("Delete", "Product")' + "?Id=" + productId;
+                $("#DeleteBody").load(url, function () {
+
+                    $("#myModal").modal('show');
+                });
+            }
+            else
+            {
+                $("#myModal").modal('hide');
+            }
+        })
+
+        //This is for action tooltip
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}
+
+

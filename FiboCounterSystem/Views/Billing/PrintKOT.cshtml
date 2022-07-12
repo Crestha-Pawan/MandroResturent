@@ -1,0 +1,189 @@
+﻿@model FiboBilling.Src.ViewModel.BillingReportViewModel
+@{
+    int SN = 1;
+}
+@inject FiboInventory.InfraStructure.Repository.IProductRepository _productrepos;
+@using FiboInfraStructure;
+<style>
+    * {
+        font-size: 12px;
+        margin: 0
+    }
+
+    .centered {
+        text-align: center;
+        align-content: center;
+    }
+
+    .ticket {
+        width: 140px;
+        max-width: 140px;
+    }
+
+    img {
+        max-width: inherit;
+        width: inherit;
+    }
+</style>
+<script type="text/javascript">
+    function CallPrint(strid) {
+        var mywindow = document.getElementById('profile');
+        var popupWin = window.open('', "Kaamana Format", 'width=350,height=150,location=no,left=200px');
+
+        popupWin.document.open();
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css"  href="../Content/bootstrap.min.css" /></head><body onload="window.print()">')
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css" href="../Content/print.css" /></head><body onload="window.print()">')
+        popupWin.document.write(mywindow.innerHTML);
+        popupWin.document.write('</html>');
+
+        popupWin.document.close();
+
+    }
+
+</script>
+
+<div class="card col-lg-6 col-md-6 col-sm-6 col-xs-6">
+    <div class="card-body">
+        <div class="row" style="text-align:right">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <button type="button" class="btn"
+                        style="margin-bottom:20px;background-color:darkblue;padding-top: 3px;
+    padding-bottom: 5px;padding-left:5px;color:white;font-weight:bold"
+                        onclick="CallPrint('strid')" data-ma-action="print">
+                    <i class="ti-printer">Print</i> 
+                </button>
+            </div>
+        </div>
+        <div class="ticket" id="profile">
+            <table>
+                <tr>
+                    <td>
+                        <table>
+                            <tr>
+                                <td></td>
+                                <td style="text-align:center">
+                                    <p>
+                                        <b style="font-size: 23px;"><u>Mandro Restaurant </u></b>
+                                    <p style="font-size: 13px; margin-top: -15px;">
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align:center">KOT</td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td>
+
+                                    @if (@Model.Billings.Count > 0)
+                                    {
+                                        @Model.Billings.FirstOrDefault().TableNo;
+
+                                    }
+
+                                </td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td colspan="3">
+                                    <table class="table table-bordered table-striped" BORDER="1" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th rowspan="2">
+                                                    <p>
+                                                        S.N
+                                                    </p>
+                                                </th>
+                                                <th rowspan="2">
+                                                    <p>
+                                                        Item Name
+                                                    </p>
+                                                </th>
+                                                <th rowspan="2">
+                                                    <p style="font-size:15px">
+                                                        Quantity
+                                                    </p>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+
+                                                <td style="vertical-align: top">
+                                                    @foreach (var item in Model.BillingInfoList)
+
+                                                    {
+                                                        @SN
+                                                        <br />
+                                                        SN++;
+                                                    }
+
+
+                                                </td>
+                                                <td style="vertical-align:top;text-align:right">
+                                                    <p>
+                                                        @foreach (var item in Model.BillingInfoList)
+                                                        {
+                                                            var product = await _productrepos.GetByIdAsync((long)item.ProductId);
+                                                            @product.Name <br />
+                                                            if (item.IsTakeAway)
+                                                            {
+                                                                <span class="badge badge-light-success m-b-0" style="font-size: 15px; color:black">-Take Away: @item.TakeAwayQuantity</span>
+                                                            }
+                                                        }
+                                                    </p>
+                                                </td>
+                                                <td style="vertical-align: top; text-align: right">
+                                                    <p>
+                                                        @foreach (var item in Model.BillingInfoList)
+                                                        {
+                                                            @item.Quantity<br />
+                                                        }
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            @foreach (var item in Model.Billings)
+
+            {
+                <label>Kot By</label>
+                @item.KotBotBy
+            }
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+@if (ViewBag.Message != null)
+{
+    <script type="text/javascript">
+    'use strict';
+    $(window).on('load', function () {
+        function notify(message) {
+            $.notify({
+                message: message,
+                type: 'inverse',
+                allow_dismiss: false,
+                label: 'Cancel',
+                className: 'btn-xs btn-inverse',
+                placement: { from: 'bottom', align: 'right' },
+                delay: 2500,
+                animate: { enter: 'animated fadeInRight', exit: 'animated fadeOutRight' },
+                offset: { x: 30, y: 30 }
+            });
+        };
+        /**/
+        notify('@ViewBag.Message', 'success');
+    /**/
+    });
+    </script>
+}

@@ -1,0 +1,102 @@
+﻿@model FiboInventory.Src.ViewModel.IngredientReportViewModel
+@*@inject FiboInventory.InfraStructure.Repository.IProductRepository _productrepos;
+    @inject FiboInventory.InfraStructure.Repository.IInventoryRepository _inventoryrepos;
+    @inject FiboOffice.InfraStructure.Repository.IMeasuringUnitRepository _MUrepos;*@
+@inject FiboInventory.InfraStructure.Repository.IInventoryRepository _inventoryRepository;
+@inject FiboInventory.InfraStructure.Repository.IItemRepository _itemRepository;
+@inject FiboOffice.InfraStructure.Repository.IMeasuringUnitRepository _muRepo;
+@using FiboInfraStructure;
+<script type="text/javascript">
+    function CallPrint(strid) {
+        var mywindow = document.getElementById('Format');
+        var popupWin = window.open('', "Kaamana Format", 'width=350,height=150,location=no,left=200px');
+
+        popupWin.document.open();
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css"  href="../Content/bootstrap.min.css" /></head><body onload="window.print()">')
+        popupWin.document.write('<html><title>' + "" + '</title><link rel="stylesheet" type="text/css" href="../Content/print.css" /></head><body onload="window.print()">')
+        popupWin.document.write(mywindow.innerHTML);
+        popupWin.document.write('</html>');
+
+        popupWin.document.close();
+
+    }
+
+</script>
+@{
+    int SN = 0;
+    //var products = await _productrepos.GetAllProductAsync();
+}
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            @using (Html.BeginForm("IngredientReport", "IngredientReport", FormMethod.Get, new { @class = "form-view-data" }))
+            {
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label for="Payment" style="margin-bottom:-5px">Item Name</label>
+                                <select asp-for="ItemId" asp-items="Model.ItemList" style="margin-bottom:-8px" class="form-control" id="PaymentMethod" autocomplete="off">
+                                    <option value="">--select--</option>
+
+                                </select>
+                            </div>
+                            <div class="btn btn-sm  btn-group" style="margin-top: 17px;">
+                                <button type="submit" class="btn btn-success"><i class="ti-filter">Search</i></button>
+                                <button type="button" class="btn btn-success"
+                                        style="background-color:darkblue;color:white;font-weight:bold"
+                                        onclick="CallPrint('strid')" data-ma-action="print">
+                                    <i class="ti-printer"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body" id="Format">
+            <h4>Ingredient Consumption Report</h4>
+            <hr />
+            <div class="table-responsive">
+                <div class="tableFixHead">
+                    <table class="table table-bordered table-striped" border="1" width="100%">
+                        <thead style="background-color: #FFFFFFCC;">
+                            <tr>
+                                <th>SN</th>
+                                <th>Item</th>
+                                <th>Consumed Quantity </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Inventories)
+                            {
+                                SN++;
+                                var items = await _itemRepository.GetByIdAsync((long)item.ItemId);
+                                var mu = await _muRepo.GetByIdAsync((long)item.MeasuringUnitId);
+
+                                <tr>
+                                    <td>
+                                        @SN
+                                    </td>
+                                    <td>
+                                        @items.Name
+                                    </td>
+                                    <td>
+                                        @item.ConsumedQuantity &nbsp;@mu.Name
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>

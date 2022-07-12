@@ -1,0 +1,95 @@
+﻿@model Payroll.Src.Dto.OpeningClosingDto
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Create";
+}
+
+<form asp-action="Create" asp-controller="OpeningClosing" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">OpeningClosing Create</h4>
+                    <hr />
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label for="Name">Date<span style="color:red">*</span></label><br />
+                            <input type="text" asp-for="Date" class="form-control nepali-datepicker" id="Name" required autocomplete="off" />
+                            <div class="invalid-feedback">
+                                Please Enter A Name.
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="Name">Opening Balance<span style="color:red">*</span></label><br />
+                            <input type="text" asp-for="OpeningBalance" class="form-control" id="opening" required autocomplete="off" />
+                            <div class="invalid-feedback">
+                                Please Enter A Name.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label for="Email">Net Saving<span style="color:red">*</span></label><br />
+                            <input type="text" asp-for="NetSaving" class="form-control" id="netsaving" required autocomplete="off" />
+                            <div class="invalid-feedback">
+                                Please Enter A Email.
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="PhoneNo">Closing Balance<span style="color:red">*</span></label><br />
+                            <input type="text" asp-for="ClosingBalance" class="form-control" id="closing" required autocomplete="off" />
+                            <div class="invalid-feedback">
+                                Please Enter A Phone No.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="form-group">
+                            <div class="col-md-12" style="text-align:right">
+                                <button type="submit" class="btn  btn-success" id="btnSubmit"><i class="feather mr-2 icon-check-square"></i>Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+           
+            CalcClosing();
+            $("#closing").val(0);
+            $("#opening").val(0);
+            $("#netsaving").val(0);
+            $("#opening").on("keyup", function () {
+                CalcTotalExpense();
+            });
+            $("#netsaving").on("keyup", function () {
+                CalcTotalExpense();
+            });
+          
+        });
+        function CalcTotalExpense() {
+            var fa = $("#opening").val();
+            var sa = $("#netsaving").val();
+            var cloing = parseFloat(fa) + parseFloat(sa);
+           
+            $("#closing").val(cloing.toFixed(2));
+
+        }
+
+        function CalcClosing() {
+            var fa = $("#opening").val();
+            var sa = $("#netsaving").val();
+            var cloing = parseFloat(fa) + parseFloat(sa);
+
+            $("#closing").val(cloing.toFixed(2));
+        }
+    </script>
+}

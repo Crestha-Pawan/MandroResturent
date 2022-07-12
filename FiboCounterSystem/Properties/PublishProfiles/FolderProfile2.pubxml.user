@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\CounterBilling_PublishFile</_PublishTargetUrl>
+    <History>True|2021-12-14T10:40:31.1805732Z;True|2021-12-14T16:24:31.0691350+05:45;True|2021-12-14T11:26:06.1590327+05:45;True|2021-12-14T11:25:20.1724025+05:45;True|2021-12-13T14:35:16.9532000+05:45;True|2021-12-13T11:26:59.2206951+05:45;True|2021-12-13T10:10:11.0897568+05:45;True|2021-12-12T12:33:03.9530825+05:45;True|2021-12-10T17:33:34.1763206+05:45;True|2021-12-10T12:08:52.6660420+05:45;True|2021-12-08T17:05:36.9556742+05:45;True|2021-12-08T11:44:36.9900672+05:45;</History>
+  </PropertyGroup>
+</Project>

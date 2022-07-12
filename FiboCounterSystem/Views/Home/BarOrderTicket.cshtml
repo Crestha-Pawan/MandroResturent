@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewData["Title"] = "Home Page";
+}
+@using System.Linq;
+@inject FiboBilling.InfraStructure.Repository.ITableRepository _tableRepo;
+@inject FiboBilling.InfraStructure.Repository.IBillingRepository _billingRepo;
+@inject FiboBilling.InfraStructure.Repository.IBillingInfoRepository _billingInfoRepo;
+@inject FiboInventory.InfraStructure.Repository.IProductRepository _productRepo;
+@{
+    var table = await _tableRepo.GetAllTableAsync();
+    var billing = await _billingRepo.GetAllBillingAsync();
+    var billingInfo = await _billingInfoRepo.GetAllBillingAsync();
+    var product = await _productRepo.GetAllProductAsync();
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from codedthemes.com/demos/admin-templates/gradient-able/bootstrap/default/dashboard-sale.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 23 Nov 2021 06:41:59 GMT -->
+<head>
+    <title>Counter Billing System</title>
+
+
+    <!--[if lt IE 11]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+            <![endif]-->
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="">
+    <meta name="author" content="Codedthemes" />
+
+    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    @*<link href="~/default/assets/css/style.css" rel="stylesheet" />*@
+</head>
+<body>
+
+
+
+    <div class="card">
+        <div class="card-header">
+            <h4>BAR ORDER TICKET</h4>
+            <hr />
+        </div>
+        <div class="card-body" id="bot">
+            <div class="row">
+                @if (table != null)
+                {
+                    @foreach (var item in table)
+                    {
+                        var tableOrder = billing.Where(x => x.TableId == item.Id && x.Status == "Waiting").FirstOrDefault();
+                        if (tableOrder != null)
+                        {
+                            var tableOrderInfo = billingInfo.Where(x=>x.BillingId==tableOrder.Id && x.IsKOT==false).ToList();
+                            <div class="col-xl-4 col-md-6">
+                                <div class="card prod-p-card bg-c-red">
+                                    <div class="card-body">
+                                        <div class="row align-items-center m-b-0">
+                                            <div class="col">
+
+                                                <h4 class="m-b-5 text-white" style="text-align:center">@item.Name </h4>
+                                                @foreach (var order in tableOrderInfo)
+                                                {
+                                                    var orderProduct = product.Where(x=>x.Id== order.ProductId).FirstOrDefault();
+
+                                                    <i class="m-b-0 text-white">@orderProduct.Name</i>
+
+                                                    <i class="m-b-0 text-white" style="float: right; margin-top:-10px">@order.Quantity</i>
+                                                    <br />
+                                                    if (order.IsTakeAway)
+                                                    {
+                                                        <span class="badge badge-light-success m-b-0 text-white" style="font-size: 15px">-Take Away: @order.TakeAwayQuantity</span>
+
+                                                    }
+                                                    <hr style="background: white;" />
+                                                    <br />
+                                                }
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</body>
+<!-- Mirrored from codedthemes.com/demos/admin-templates/gradient-able/bootstrap/default/dashboard-sale.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 23 Nov 2021 06:42:03 GMT -->
+</html>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        setInterval('refreshPage()', 5000);
+    });
+    setTimeout(function () {
+        $.ajax({
+                type: "get",
+                dataType: "json",
+                url: '@Url.Action("CheckBOTNotification")',
+                error: function () {
+
+                },
+            success: function (check) {
+                if (check == true) {
+                    play();
+                }
+                }
+        })
+    }, 5000);
+    function refreshPage() {
+        location.reload(true);
+    }
+    function play() {
+        var audio = new Audio(
+            'https://media.geeksforgeeks.org/wp-content/uploads/20190531135120/beep.mp3');
+        audio.play();
+
+        $.ajax({
+                type: "Post",
+                dataType: "json",
+                url: '@Url.Action("DeleteBOTNotification")',
+                error: function () {
+
+                },
+                success: function (datathis) {
+
+                }
+        })
+    }
+</script>
